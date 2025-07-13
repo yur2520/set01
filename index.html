@@ -8,16 +8,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        /* SUITE Variable 폰트 (로컬 파일) */
-        @font-face {
-            font-family: 'SUITE Variable';
-            font-weight: 300 900;
-            /* 폰트 파일 경로가 올바른지 확인해주세요. */
-            src: url('./SUITE-Variable.woff2') format('woff2-variations');
-        }
-        
+        /* Noto Sans KR 폰트 적용 */
         body {
-            font-family: 'SUITE Variable','Noto Sans KR', sans-serif;
+            font-family: 'Noto Sans KR', sans-serif;
         }
         /* 활성 탭 스타일 */
         .tab-active {
@@ -63,21 +56,22 @@
 
             <!-- 콘텐츠를 표시할 iframe -->
             <div class="p-4">
-                <iframe id="content-frame" class="w-full h-[60vh] border-0 rounded-md" srcdoc="<div style='display:flex;justify-content:center;align-items:center;height:100%;font-size:1.5rem;color:#333;font-family:Noto Sans KR, sans-serif;'><h1>국어 페이지</h1><p>내용이 여기에 표시됩니다.</p></div>">
+                <iframe id="content-frame" class="w-full h-[60vh] border-0 rounded-md" src="">
                 </iframe>
             </div>
         </div>
     </div>
 
     <script>
-        // 각 과목에 대한 콘텐츠 HTML (실제로는 파일 경로를 사용)
+        // 각 과목에 대한 페이지 URL
+        // 다른 과목들의 URL도 이와 같은 형식으로 수정하여 사용할 수 있습니다.
         const contentSources = {
-            korean: { title: '국어 페이지', content: '국어 과목의 내용입니다.' },
-            social: { title: '사회 페이지', content: '사회 과목의 내용입니다.' },
-            math: { title: '수학 페이지', content: '수학 과목의 내용입니다.' },
-            art: { title: '음악&미술 페이지', content: '음악과 미술 과목의 내용입니다.' },
-            practical: { title: '실과 페이지', content: '실과 과목의 내용입니다.' },
-            creative: { title: '창의적 체험활동 페이지', content: '창의적 체험활동의 내용입니다.' }
+            korean: 'https://yur2520.github.io/korean',
+            social: 'https://yur2520.github.io/social',
+            math: 'https://yur2520.github.io/math',
+            art: 'https://yur2520.github.io/art',
+            practical: 'https://yur2520.github.io/practical',
+            creative: 'https://yur2520.github.io/creative'
         };
 
         // 탭 변경 함수
@@ -95,17 +89,22 @@
             clickedButton.classList.remove('tab-inactive');
             clickedButton.classList.add('tab-active');
             
-            // iframe의 콘텐츠 변경
-            // 실제 프로젝트에서는 src 속성을 'korean.html', 'math.html' 등으로 변경합니다.
-            // 예: frame.src = `${subject}.html`;
-            const source = contentSources[subject];
-            frame.srcdoc = `<div style='display:flex;flex-direction:column;justify-content:center;align-items:center;height:100%;font-size:1.2rem;color:#333;font-family:Noto Sans KR, sans-serif;'><h1>${source.title}</h1><p>${source.content}</p></div>`;
+            // iframe의 src 속성을 해당 과목의 URL로 변경합니다.
+            const url = contentSources[subject];
+            if (url) {
+                frame.src = url;
+            } else {
+                // URL이 없는 경우 빈 페이지를 표시하거나 에러 메시지를 보여줄 수 있습니다.
+                frame.srcdoc = `<div style='display:flex;justify-content:center;align-items:center;height:100%;'>페이지를 찾을 수 없습니다.</div>`;
+            }
         }
 
-        // 페이지 로드 시 기본으로 국어 탭을 활성화합니다.
+        // 페이지 로드 시 기본으로 국어 탭을 활성화하고 해당 URL을 로드합니다.
         document.addEventListener('DOMContentLoaded', () => {
             const initialButton = document.querySelector('.tab-button');
-            changeTab('korean', initialButton);
+            if (initialButton) {
+                changeTab('korean', initialButton);
+            }
         });
     </script>
 
