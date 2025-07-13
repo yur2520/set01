@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>상단 탭 바 예제</title>
+    <!-- Tailwind CSS 로드 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Noto Sans KR 폰트 적용 */
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        /* 활성 탭 스타일 */
+        .tab-active {
+            border-bottom-color: #5fa8d9; /* 파란색 */
+            color: #5fa8d9;
+            font-weight: 700;
+        }
+        /* 비활성 탭 스타일 */
+        .tab-inactive {
+            border-bottom-color: transparent;
+            color: #6b7280; /* 회색 */
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        <div class="bg-white rounded-lg shadow-md">
+            <!-- 탭 바 컨테이너 -->
+            <nav class="border-b border-gray-200">
+                <div class="flex -mb-px space-x-1 sm:space-x-4 px-4" aria-label="Tabs">
+                    <!-- 각 탭 버튼 -->
+                    <button onclick="changeTab('korean', this)" class="tab-button whitespace-nowrap py-4 px-2 sm:px-4 border-b-2 text-sm sm:text-base tab-active">
+                        국어
+                    </button>
+                    <button onclick="changeTab('social', this)" class="tab-button whitespace-nowrap py-4 px-2 sm:px-4 border-b-2 text-sm sm:text-base tab-inactive">
+                        사회
+                    </button>
+                    <button onclick="changeTab('math', this)" class="tab-button whitespace-nowrap py-4 px-2 sm:px-4 border-b-2 text-sm sm:text-base tab-inactive">
+                        수학
+                    </button>
+                    <button onclick="changeTab('art', this)" class="tab-button whitespace-nowrap py-4 px-2 sm:px-4 border-b-2 text-sm sm:text-base tab-inactive">
+                        음악&미술
+                    </button>
+                    <button onclick="changeTab('practical', this)" class="tab-button whitespace-nowrap py-4 px-2 sm:px-4 border-b-2 text-sm sm:text-base tab-inactive">
+                        실과
+                    </button>
+                    <button onclick="changeTab('creative', this)" class="tab-button whitespace-nowrap py-4 px-2 sm:px-4 border-b-2 text-sm sm:text-base tab-inactive">
+                        창의적 체험활동
+                    </button>
+                </div>
+            </nav>
+
+            <!-- 콘텐츠를 표시할 iframe -->
+            <div class="p-4">
+                <iframe id="content-frame" class="w-full h-[60vh] border-0 rounded-md" srcdoc="<div style='display:flex;justify-content:center;align-items:center;height:100%;font-size:1.5rem;color:#333;font-family:Noto Sans KR, sans-serif;'><h1>국어 페이지</h1><p>내용이 여기에 표시됩니다.</p></div>">
+                </iframe>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 각 과목에 대한 콘텐츠 HTML (실제로는 파일 경로를 사용)
+        const contentSources = {
+            korean: { title: '국어 페이지', content: '국어 과목의 내용입니다.' },
+            social: { title: '사회 페이지', content: '사회 과목의 내용입니다.' },
+            math: { title: '수학 페이지', content: '수학 과목의 내용입니다.' },
+            art: { title: '음악&미술 페이지', content: '음악과 미술 과목의 내용입니다.' },
+            practical: { title: '실과 페이지', content: '실과 과목의 내용입니다.' },
+            creative: { title: '창의적 체험활동 페이지', content: '창의적 체험활동의 내용입니다.' }
+        };
+
+        // 탭 변경 함수
+        function changeTab(subject, clickedButton) {
+            const frame = document.getElementById('content-frame');
+            const buttons = document.querySelectorAll('.tab-button');
+
+            // 모든 버튼의 활성 스타일 제거
+            buttons.forEach(button => {
+                button.classList.remove('tab-active');
+                button.classList.add('tab-inactive');
+            });
+
+            // 클릭된 버튼에 활성 스타일 추가
+            clickedButton.classList.remove('tab-inactive');
+            clickedButton.classList.add('tab-active');
+            
+            // iframe의 콘텐츠 변경
+            // 실제 프로젝트에서는 src 속성을 'korean.html', 'math.html' 등으로 변경합니다.
+            // 예: frame.src = `${subject}.html`;
+            const source = contentSources[subject];
+            frame.srcdoc = `<div style='display:flex;flex-direction:column;justify-content:center;align-items:center;height:100%;font-size:1.2rem;color:#333;font-family:Noto Sans KR, sans-serif;'><h1>${source.title}</h1><p>${source.content}</p></div>`;
+        }
+
+        // 페이지 로드 시 기본으로 국어 탭을 활성화합니다.
+        document.addEventListener('DOMContentLoaded', () => {
+            const initialButton = document.querySelector('.tab-button');
+            changeTab('korean', initialButton);
+        });
+    </script>
+
+</body>
+</html>
