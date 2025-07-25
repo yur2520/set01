@@ -145,9 +145,11 @@
             }
 
             // absolute 기준점이 tab-container이므로, left 위치와 width만 조정
-            const offsetLeft = activeButton.offsetLeft-6;
-            indicator.style.left = `${offsetLeft}px`;
-            indicator.style.width = `${activeButton.offsetWidth-16}px`;
+            const offsetLeft = activeButton.offsetLeft;
+            const paddingHorizontal = window.innerWidth < 640 ? 16 : 32; // sm breakpoint 기준
+            const offsetLeftsetting = window.innerWidth < 640 ? 2 : 0
+            indicator.style.left = `${offsetLeft+offsetLeftsetting}px`;
+            indicator.style.width = `${activeButton.offsetWidth-paddingHorizontal}px`;
 
             if (!indicator.classList.contains('ready')) {
                 indicator.classList.add('ready');
