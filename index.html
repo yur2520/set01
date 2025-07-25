@@ -145,9 +145,9 @@
             }
 
             // absolute 기준점이 tab-container이므로, left 위치와 width만 조정
-            const offsetLeft = activeButton.offsetLeft-8;
+            const offsetLeft = activeButton.offsetLeft-6;
             indicator.style.left = `${offsetLeft}px`;
-            indicator.style.width = `${activeButton.offsetWidth-8}px`;
+            indicator.style.width = `${activeButton.offsetWidth-16}px`;
 
             if (!indicator.classList.contains('ready')) {
                 indicator.classList.add('ready');
