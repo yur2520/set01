@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        /* 커스텀 폰트 SUITE Variable (필요 시 경로 설정) */
         @font-face {
             font-family: 'SUITE Variable';
             font-weight: 300 900;
@@ -15,48 +14,38 @@
         }
         body {
             font-family: 'SUITE Variable', 'Noto Sans KR', sans-serif;
-            overscroll-behavior-x: none; /* 모바일에서 당겼을 때 새로고침 방지 */
+            overscroll-behavior-x: none;
         }
-        /* 탭 버튼 기본 스타일 및 트랜지션 */
         .tab-button {
             transition: color 0.3s ease-in-out;
         }
-        /* 활성 탭 스타일 (색상 원복) */
         .tab-active {
             color: #5fa8d9;
             font-weight: 700;
         }
-        /* 비활성 탭 스타일 */
         .tab-inactive {
-            color: #6b7280; /* 회색 (Tailwind gray-500) */
+            color: #6b7280;
         }
-        
-        /* --- 탭 애니메이션 스타일 시작 --- */
-        /* 탭 버튼들을 감싸는 컨테이너 */
         .tab-container {
             position: relative;
         }
-        /* 움직이는 밑줄(indicator) 스타일 */
         .tab-indicator {
             position: absolute;
-            bottom: -1px; /* border-b가 위치할 곳 */
+            bottom: 0; /* 수정: border-bottom과 일치 */
+            left: 0;
             height: 2px;
-            background-color: #5fa8d9; /* 활성 탭과 동일한 색상 */
-            transition: transform 0.3s ease-in-out, width 0.3s ease-in-out;
-            opacity: 0; /* 초기에는 숨김 */
+            background-color: #5fa8d9;
+            transition: left 0.3s cubic-bezier(.4,0,.2,1), width 0.3s cubic-bezier(.4,0,.2,1);
+            opacity: 0;
+            will-change: left, width;
         }
-        /* 인디케이터가 준비되면 표시 */
         .tab-indicator.ready {
             opacity: 1;
         }
-        /* --- 탭 애니메이션 스타일 끝 --- */
-
-        /* iframe 컨테이너: overflow-hidden으로 자식 요소가 넘치는 것을 숨김 */
         .frame-container {
             overflow: hidden;
             position: relative;
         }
-        /* iframe: 트랜지션 효과 설정 */
         #content-frame {
             transition: transform 0.35s ease-in-out, opacity 0.35s ease-in-out;
         }
@@ -146,22 +135,20 @@
             const activeButton = buttons[targetIndex];
             if (!activeButton) return;
             
-            // 요소가 렌더링된 후 실제 크기를 측정
+            // 버튼의 위치와 크기(좌표) 계산
             const rect = activeButton.getBoundingClientRect();
             const containerRect = activeButton.parentElement.getBoundingClientRect();
-            
+
             if (rect.width === 0) {
-                // 아직 렌더링되지 않은 경우 다음 프레임에서 다시 시도
                 requestAnimationFrame(() => updateIndicator(targetIndex));
                 return;
             }
-            
-            const offsetLeft = rect.left - containerRect.left;
-            
-            indicator.style.width = `${rect.width}px`;
-            indicator.style.transform = `translateX(${offsetLeft}px)`;
-            
-            // 인디케이터를 보이게 함
+
+            // absolute 기준점이 tab-container이므로, left 위치와 width만 조정
+            const offsetLeft = activeButton.offsetLeft;
+            indicator.style.left = `${offsetLeft}px`;
+            indicator.style.width = `${activeButton.offsetWidth}px`;
+
             if (!indicator.classList.contains('ready')) {
                 indicator.classList.add('ready');
             }
@@ -174,7 +161,6 @@
                 button.classList.toggle('tab-inactive', index !== currentIndex);
             });
             
-            // 스타일 변경 후 다음 프레임에서 인디케이터 위치 업데이트
             requestAnimationFrame(() => {
                 updateIndicator(currentIndex);
             });
@@ -216,7 +202,6 @@
                 if (document.fonts && document.fonts.ready) {
                     document.fonts.ready.then(resolve);
                 } else {
-                    // Fallback for older browsers
                     setTimeout(resolve, 500);
                 }
             });
@@ -224,28 +209,22 @@
 
         // --- 앱 초기화 함수 (개선) ---
         async function initializeApp() {
-            // 버튼에 클릭 이벤트 리스너 추가
             buttons.forEach(button => {
                 button.addEventListener('click', () => {
                     changeTab(parseInt(button.dataset.index, 10));
                 });
             });
 
-            // 초기 콘텐츠 로드
             frame.src = contentSources.korean;
             frame.style.opacity = '1';
 
-            // 폰트 로딩 대기
             await waitForFonts();
-            
-            // 초기 스타일 설정
+
             updateTabStyles();
 
-            // 창 크기가 변경될 때 디바운스된 핸들러로 스타일 다시 계산
             window.addEventListener('resize', handleResize);
         }
 
-        // DOM이 준비되면 앱 초기화 실행
         document.addEventListener('DOMContentLoaded', initializeApp);
     </script>
 </body>
