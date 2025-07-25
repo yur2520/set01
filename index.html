@@ -3,74 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>초등교육 자료모음</title>
+    <title>초등교육 자료모음 (개선版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-            /* SUITE Variable 폰트 (로컬 파일) */
+        /* 커스텀 폰트 SUITE Variable (필요 시 경로 설정) */
         @font-face {
             font-family: 'SUITE Variable';
             font-weight: 300 900;
-            /* 폰트 파일 경로가 올바른지 확인해주세요. */
-            src: url('./SUITE-Variable.woff2') format('woff2-variations');
+            /* src: url('./SUITE-Variable.woff2') format('woff2-variations'); */
         }
-        /* Noto Sans KR 폰트 적용 */
         body {
             font-family: 'SUITE Variable', 'Noto Sans KR', sans-serif;
+            overscroll-behavior-x: none; /* 모바일에서 당겼을 때 새로고침 방지 */
         }
-        /* 활성 탭 스타일 */
+        /* 탭 버튼 기본 스타일 및 트랜지션 */
+        .tab-button {
+            transition: color 0.3s ease-in-out;
+        }
+        /* 활성 탭 스타일 (색상 원복) */
         .tab-active {
-            border-bottom-color: #5fa8d9; /* 파란색 */
             color: #5fa8d9;
             font-weight: 700;
         }
         /* 비활성 탭 스타일 */
         .tab-inactive {
-            border-bottom-color: transparent;
-            color: #6b7280; /* 회색 */
+            color: #6b7280; /* 회색 (Tailwind gray-500) */
+        }
+        
+        /* --- 탭 애니메이션 스타일 시작 --- */
+        /* 탭 버튼들을 감싸는 컨테이너 */
+        .tab-container {
+            position: relative;
+        }
+        /* 움직이는 밑줄(indicator) 스타일 */
+        .tab-indicator {
+            position: absolute;
+            bottom: -1px; /* border-b가 위치할 곳 */
+            height: 2px;
+            background-color: #5fa8d9; /* 활성 탭과 동일한 색상 */
+            transition: transform 0.3s ease-in-out, width 0.3s ease-in-out;
+            opacity: 0; /* 초기에는 숨김 */
+        }
+        /* 인디케이터가 준비되면 표시 */
+        .tab-indicator.ready {
+            opacity: 1;
+        }
+        /* --- 탭 애니메이션 스타일 끝 --- */
+
+        /* iframe 컨테이너: overflow-hidden으로 자식 요소가 넘치는 것을 숨김 */
+        .frame-container {
+            overflow: hidden;
+            position: relative;
+        }
+        /* iframe: 트랜지션 효과 설정 */
+        #content-frame {
+            transition: transform 0.35s ease-in-out, opacity 0.35s ease-in-out;
         }
     </style>
 </head>
 <body class="bg-gray-100">
 
     <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-        <div class="bg-white rounded-lg shadow-md">
-             <div class="px-6 pt-4 text-right">
-                <p class="text-xs text-gray-500">각 자료를 새 창에서 열려면 ctrl버튼을 누른 채 클릭하세요.</p>
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="px-6 pt-4 text-right">
+                <p class="text-xs text-gray-500">새 창 열기: Ctrl 또는 Command 누른 채 클릭</p>
             </div>
             <nav class="border-b border-gray-200">
-                <div class="flex -mb-px space-x-1 sm:space-x-4 px-4" aria-label="Tabs">
-                    <button onclick="changeTab('korean', this)" class="tab-button whitespace-nowrap py-4 px-2 sm:px-4 border-b-2 text-sm sm:text-base tab-active">
-                        국어
-                    </button>
-                    <button onclick="changeTab('social', this)" class="tab-button whitespace-nowrap py-4 px-2 sm:px-4 border-b-2 text-sm sm:text-base tab-inactive">
-                        사회
-                    </button>
-                    <button onclick="changeTab('math', this)" class="tab-button whitespace-nowrap py-4 px-2 sm:px-4 border-b-2 text-sm sm:text-base tab-inactive">
-                        수학
-                    </button>
-                    <button onclick="changeTab('art', this)" class="tab-button whitespace-nowrap py-4 px-2 sm:px-4 border-b-2 text-sm sm:text-base tab-inactive">
-                        음악&미술
-                    </button>
-                    <button onclick="changeTab('practical', this)" class="tab-button whitespace-nowrap py-4 px-2 sm:px-4 border-b-2 text-sm sm:text-base tab-inactive">
-                        실과
-                    </button>
-                    <button onclick="changeTab('creative', this)" class="tab-button whitespace-nowrap py-4 px-2 sm:px-4 border-b-2 text-sm sm:text-base tab-inactive">
-                        창의적 체험활동
-                    </button>
+                <div class="flex -mb-px space-x-1 sm:space-x-4 px-4 tab-container" aria-label="Tabs">
+                    <button data-subject="korean" data-index="0" class="tab-button whitespace-nowrap py-4 px-2 sm:px-4 border-b-2 border-transparent text-sm sm:text-base">국어</button>
+                    <button data-subject="social" data-index="1" class="tab-button whitespace-nowrap py-4 px-2 sm:px-4 border-b-2 border-transparent text-sm sm:text-base">사회</button>
+                    <button data-subject="math" data-index="2" class="tab-button whitespace-nowrap py-4 px-2 sm:px-4 border-b-2 border-transparent text-sm sm:text-base">수학</button>
+                    <button data-subject="art" data-index="3" class="tab-button whitespace-nowrap py-4 px-2 sm:px-4 border-b-2 border-transparent text-sm sm:text-base">음악&미술</button>
+                    <button data-subject="practical" data-index="4" class="tab-button whitespace-nowrap py-4 px-2 sm:px-4 border-b-2 border-transparent text-sm sm:text-base">실과</button>
+                    <button data-subject="creative" data-index="5" class="tab-button whitespace-nowrap py-4 px-2 sm:px-4 border-b-2 border-transparent text-sm sm:text-base">창의적 체험활동</button>
+                    <span id="tab-indicator" class="tab-indicator"></span>
                 </div>
             </nav>
 
-            <div class="p-4">
-                <iframe id="content-frame" class="w-full h-[80vh] border-0 rounded-md" src="">
-                </iframe>
+            <div id="frame-container" class="p-4 frame-container">
+                <iframe id="content-frame" class="w-full h-[80vh] border-0 rounded-md" src="" title="콘텐츠 영역"></iframe>
             </div>
         </div>
     </div>
 
+    <footer class="mt-8 mb-12 text-center text-gray-500 text-sm">
+        <div class="max-w-7xl mx-auto border-t-2 pt-4">
+            <p>&copy; 2025 Yura Kim. 본 사이트는 교육 목적으로 제작되었습니다. 영리적인 목적으로 사용하실 수 없으며 모든 자료의 저작권은 해당 페이지의 출처 표기를 참고하시기 바랍니다.</p>
+        </div>
+    </footer>
+
     <script>
-        // 각 과목에 대한 페이지 URL
-        // 다른 과목들의 URL도 이와 같은 형식으로 수정하여 사용할 수 있습니다.
+        // --- 요소 및 상태 변수 초기화 ---
         const contentSources = {
             korean: 'https://yur2520.github.io/korean',
             social: 'https://yur2520.github.io/social',
@@ -79,45 +103,150 @@
             practical: 'https://yur2520.github.io/tech-n-home',
             creative: 'https://yur2520.github.io/creative'
         };
+        const frame = document.getElementById('content-frame');
+        const frameContainer = document.getElementById('frame-container');
+        const buttons = document.querySelectorAll('.tab-button');
+        const indicator = document.getElementById('tab-indicator');
+        
+        let currentIndex = 0;
+        let isTransitioning = false;
+        let resizeTimeout = null;
 
-        // 탭 변경 함수
-        function changeTab(subject, clickedButton) {
-            const frame = document.getElementById('content-frame');
-            const buttons = document.querySelectorAll('.tab-button');
+        // --- 탭 변경 로직 ---
+        function changeTab(newIndex) {
+            if (newIndex === currentIndex || isTransitioning) return;
+            if (newIndex < 0 || newIndex >= buttons.length) return;
 
-            // 모든 버튼의 활성 스타일 제거
-            buttons.forEach(button => {
-                button.classList.remove('tab-active');
-                button.classList.add('tab-inactive');
-            });
+            isTransitioning = true;
+            const direction = newIndex > currentIndex ? 1 : -1;
 
-            // 클릭된 버튼에 활성 스타일 추가
-            clickedButton.classList.remove('tab-inactive');
-            clickedButton.classList.add('tab-active');
+            frame.style.opacity = '0';
+            frame.style.transform = `translateX(${-direction * 50}px)`;
+
+            setTimeout(() => {
+                const newSubject = buttons[newIndex].dataset.subject;
+                frame.src = contentSources[newSubject] || 'about:blank';
+                frame.style.transition = 'none';
+                frame.style.transform = `translateX(${direction * 50}px)`;
+
+                setTimeout(() => {
+                    frame.style.transition = 'transform 0.35s ease-in-out, opacity 0.35s ease-in-out';
+                    frame.style.opacity = '1';
+                    frame.style.transform = 'translateX(0)';
+                    isTransitioning = false;
+                }, 20);
+            }, 350);
+
+            currentIndex = newIndex;
+            updateTabStyles();
+        }
+        
+        // --- 탭 인디케이터 위치 업데이트 함수 (개선) ---
+        function updateIndicator(targetIndex) {
+            const activeButton = buttons[targetIndex];
+            if (!activeButton) return;
             
-            // iframe의 src 속성을 해당 과목의 URL로 변경합니다.
-            const url = contentSources[subject];
-            if (url) {
-                frame.src = url;
-            } else {
-                // URL이 없는 경우 빈 페이지를 표시하거나 에러 메시지를 보여줄 수 있습니다.
-                frame.src = '404.html';
+            // 요소가 렌더링된 후 실제 크기를 측정
+            const rect = activeButton.getBoundingClientRect();
+            const containerRect = activeButton.parentElement.getBoundingClientRect();
+            
+            if (rect.width === 0) {
+                // 아직 렌더링되지 않은 경우 다음 프레임에서 다시 시도
+                requestAnimationFrame(() => updateIndicator(targetIndex));
+                return;
+            }
+            
+            const offsetLeft = rect.left - containerRect.left;
+            
+            indicator.style.width = `${rect.width}px`;
+            indicator.style.transform = `translateX(${offsetLeft}px)`;
+            
+            // 인디케이터를 보이게 함
+            if (!indicator.classList.contains('ready')) {
+                indicator.classList.add('ready');
             }
         }
 
-        // 페이지 로드 시 기본으로 국어 탭을 활성화하고 해당 URL을 로드합니다.
-        document.addEventListener('DOMContentLoaded', () => {
-            const initialButton = document.querySelector('.tab-button');
-            if (initialButton) {
-                changeTab('korean', initialButton);
-            }
+        // --- 탭 스타일 업데이트 ---
+        function updateTabStyles() {
+            buttons.forEach((button, index) => {
+                button.classList.toggle('tab-active', index === currentIndex);
+                button.classList.toggle('tab-inactive', index !== currentIndex);
+            });
+            
+            // 스타일 변경 후 다음 프레임에서 인디케이터 위치 업데이트
+            requestAnimationFrame(() => {
+                updateIndicator(currentIndex);
+            });
+        }
+
+        // --- 디바운스된 리사이즈 핸들러 ---
+        function handleResize() {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                updateIndicator(currentIndex);
+            }, 100);
+        }
+
+        // --- 스와이프 이벤트 처리 ---
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        frameContainer.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        frameContainer.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
         });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            if (touchStartX - touchEndX > swipeThreshold) {
+                changeTab(currentIndex + 1);
+            } else if (touchEndX - touchStartX > swipeThreshold) {
+                changeTab(currentIndex - 1);
+            }
+        }
+
+        // --- 폰트 로딩 완료 감지 ---
+        function waitForFonts() {
+            return new Promise((resolve) => {
+                if (document.fonts && document.fonts.ready) {
+                    document.fonts.ready.then(resolve);
+                } else {
+                    // Fallback for older browsers
+                    setTimeout(resolve, 500);
+                }
+            });
+        }
+
+        // --- 앱 초기화 함수 (개선) ---
+        async function initializeApp() {
+            // 버튼에 클릭 이벤트 리스너 추가
+            buttons.forEach(button => {
+                button.addEventListener('click', () => {
+                    changeTab(parseInt(button.dataset.index, 10));
+                });
+            });
+
+            // 초기 콘텐츠 로드
+            frame.src = contentSources.korean;
+            frame.style.opacity = '1';
+
+            // 폰트 로딩 대기
+            await waitForFonts();
+            
+            // 초기 스타일 설정
+            updateTabStyles();
+
+            // 창 크기가 변경될 때 디바운스된 핸들러로 스타일 다시 계산
+            window.addEventListener('resize', handleResize);
+        }
+
+        // DOM이 준비되면 앱 초기화 실행
+        document.addEventListener('DOMContentLoaded', initializeApp);
     </script>
- 
-
-    <footer class="mt-8 mb-12 text-center text-gray-500 text-sm border-t-2 px-10">
-        <p>&copy; 2025 Yura Kim. 본 사이트는 교육 목적으로 제작되습니다. 영리적인 목적으로 사용하실 수 없으며 모든 자료의 저작권은 해당 페이지의 출처 표기를 참고하시기 바랍니다.</p>
-    </footer>
-
 </body>
 </html>
